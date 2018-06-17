@@ -20,7 +20,7 @@ namespace ConfigurationProvider
         private static ConnectionMultiplexer _connectionMultiplexer;
         private static readonly object LockObject = new object();
 
-        public event Action<Config> OnConfigurationChanged;
+        public event Action<string> OnConfigurationChanged;
 
         public MongoConfigurationDatasource(IConfiguration configurationService)
         {
@@ -35,7 +35,21 @@ namespace ConfigurationProvider
 
         public async Task<bool> DeleteAsync(string id)
         {
-            return await _repository.DeleteAsync(ObjectId.Parse(id));
+            var isDeleted = await _repository.DeleteAsync(ObjectId.Parse(id));
+
+            if (isDeleted)
+            {
+                //Always check subscriber if still alive
+                if (_subscriber.Multiplexer.IsConnected == false)
+                {
+                    EnsureRedisConnection(_settings);
+                }
+
+                //Publish the change
+                await _subscriber.PublishAsync(Constants.RedisPubSubChannel, id);
+            }
+
+            return isDeleted;
         }
 
         //Enables PubSub via a redis server
@@ -47,15 +61,12 @@ namespace ConfigurationProvider
             _isSubscribing = true;
 
             EnsureRedisConnection(_settings);
-            await _subscriber.SubscribeAsync(Constants.RedisPubSubChannel, async (channel, value) =>
+            await _subscriber.SubscribeAsync(Constants.RedisPubSubChannel, (channel, value) =>
             {
                 if (value.HasValue)
                 {
-                    string id = value.ToString();
-                    var updatedConfig = Mapper.Map(await _repository.GetAsync(id));
-
                     //Notify update via an event
-                    OnConfigurationChanged?.Invoke(updatedConfig);
+                    OnConfigurationChanged?.Invoke(value.ToString());
                 }
             });
         }
@@ -65,7 +76,7 @@ namespace ConfigurationProvider
             /*
              * Check if allready exist 
              */
-            var config = string.IsNullOrEmpty(configuration.Id) 
+            var config = string.IsNullOrEmpty(configuration.Id)
                 ? await _repository.FindOneAsync(c => c.ApplicationName == configuration.ApplicationName && c.Name == configuration.Name)
                 : await _repository.GetAsync(configuration.Id);
 
