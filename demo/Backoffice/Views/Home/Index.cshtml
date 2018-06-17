@@ -1,0 +1,121 @@
+﻿@model HomeIndexModel
+
+@section script{
+    <script>
+        var app = new Vue({
+            el: '#app',
+            data: {
+                searchTerm: null,
+                types: [
+                    '@typeof(string).Name',
+                    '@typeof(bool).Name',
+                    '@typeof(int).Name',
+                    '@typeof(long).Name',
+                    '@typeof(decimal).Name',
+                    '@typeof(float).Name',
+                    '@typeof(double).Name'
+                ],
+                saveModel: {
+                    id: null,
+                    name: '',
+                    value: '',
+                    type: '@typeof(string).Name',
+                    isActive: false
+                },
+                configs: @Html.Raw(Json.Serialize(Model.ConfigList)),
+                filteredConfigs: @Html.Raw(Json.Serialize(Model.ConfigList))
+            },
+            methods: {
+                saveConfig: function () {
+                    if (app.saveModel && app.saveModel.name && app.saveModel.value && app.saveModel.type) {
+                        axios.post('/configuration/add', app.saveModel).then(function (response) {
+                            if (response.data.result === true) {
+                                app.refresh();
+                                app.resetSaveModel();
+                            }
+                        },function(error){console.log(error)});
+                    }
+                },
+                deleteConfig: function (id) {
+                    if (!!id) {
+                        axios.get('/configuration/delete/' + id).then(function (response) {
+                            if (response.data.result === true) {
+                                app.refresh();
+                            }
+                    },function(error){console.log(error)});
+                    }
+                },
+                resetSaveModel: function() {
+                    app.saveModel = {
+                        id: null,
+                        name: '',
+                        value: '',
+                        type: '@typeof(string).Name',
+                        isActive: false
+                    };
+                },
+                filter: function() {
+                    app.filteredConfigs = app.configs.filter(function(c){ return !app.searchTerm || c.name.toLowerCase().indexOf(app.searchTerm.toLowerCase()) > -1 });
+                },
+                refresh: function() {
+                    axios.get('/configuration/list').then(function (response) {
+                        app.configs = response.data.result;
+                        app.filter();
+                    },function(error){console.log(error)});
+                }
+            }
+        })
+    </script>
+}
+
+<div id="app" class="container-fluid">
+    <table class="table table-hover table-striped">
+        <thead>
+            <tr>
+                <th colspan="5">
+                    <input class="form-control" type="text" placeholder="Search..." v-model="searchTerm" v-on:keyup="filter" />
+                </th>
+            </tr>
+            <tr>
+                <th>Name</th>
+                <th>Value</th>
+                <th>Type</th>
+                <th>IsActive</th>
+                <th width="100px"></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><input class="form-control" type="text" v-model="saveModel.name" /></td>
+                <td><input class="form-control" type="text" v-model="saveModel.value" /></td>
+                <td>
+                    <select v-model="saveModel.type" class="form-control">
+                        <option v-for="option in types" v-bind:value="option">
+                            {{ option }}
+                        </option>
+                    </select>
+                </td>
+                <td><input type="checkbox" v-model="saveModel.isActive" /></td>
+                <td v-if="!saveModel.id"><button class="btn btn-block btn-success" v-on:click="saveConfig">Add</button></td>
+                <td v-if="!!saveModel.id">
+                    <div class="btn-group" role="group" style="width: 100%">
+                        <button type="button" class="btn btn-block btn-success" v-on:click="saveConfig">Save</button>
+                        <button type="button" class="btn btn-danger" v-on:click="resetSaveModel">Cancel</button>
+                    </div>
+                </td>
+            </tr>
+            <tr v-for="config in filteredConfigs" v-if="!saveModel.id">
+                <td>{{config.name}}</td>
+                <td>{{config.value}}</td>
+                <td>{{config.type}}</td>
+                <td>{{config.isActive}}</td>
+                <td>
+                    <div class="btn-group" role="group" style="width: 100%">
+                        <button type="button" class="btn btn-block btn-primary" v-on:click="saveModel = config">Update</button>
+                        <button type="button" class="btn btn-danger" v-on:click="deleteConfig(config.id)">Delete</button>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

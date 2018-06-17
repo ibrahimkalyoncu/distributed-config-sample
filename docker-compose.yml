@@ -1,0 +1,61 @@
+version: '3.6'
+services:
+  mongo:
+    image: mongo
+    container_name: mongo
+    restart: always
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ibrahim
+      MONGO_INITDB_ROOT_PASSWORD: ibrahim123
+
+  mongo-express:
+    image: mongo-express
+    container_name: mongo-express
+    restart: always
+    ports:
+      - 57004:8081
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: ibrahim
+      ME_CONFIG_MONGODB_ADMINPASSWORD: ibrahim123
+  
+  redis:
+    image: redis
+    container_name: redis
+    restart: always
+    hostname: redis
+    ports:
+      - 6379:6379    
+
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: redis-commander
+    hostname: redis-commander
+    restart: always
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    ports:
+      - 57003:8081
+
+  backoffice: 
+    build: 
+      context: .
+      dockerfile: Dockerfile.backoffice
+    image: backoffice
+    container_name: backoffice
+    hostname: backoffice
+    restart: always
+    ports:
+      - 57002:80
+
+  storefront: 
+    build: 
+      context: .
+      dockerfile: Dockerfile.storefront
+    image: storefront
+    container_name: storefront
+    hostname: storefront
+    restart: always
+    ports:
+      - 57001:80
