@@ -23,12 +23,18 @@ namespace Backoffice.Controllers
                 ConfigList = configs.Select(c => new ConfigModel
                 {
                     Id = c.Id,
+                    ApplicationName = c.ApplicationName,
                     IsActive = c.IsActive,
                     Name = c.Name,
                     Type = c.Type,
                     Value = c.Value
                 }).ToList()
             });
+        }
+
+        public IActionResult Error()
+        {
+            return Content("An error occurred");
         }
      }
 }

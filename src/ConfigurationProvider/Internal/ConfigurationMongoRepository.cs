@@ -42,14 +42,14 @@ namespace ConfigurationProvider.Internal
             return (await _collection.ReplaceOneAsync(filter, postmodel)).ModifiedCount > 0;
         }
 
-        public async Task<List<ConfigEntity>> FindAsync(Expression<Func<ConfigEntity, bool>> predicate)
-        {
-            return await (await _collection.FindAsync<ConfigEntity>(predicate)).ToListAsync();
-        }
-
         public async Task<bool> DeleteAsync(ObjectId id)
         {
             return (await _collection.DeleteOneAsync(c => c._id.Equals(id))).DeletedCount > 0;
+        }
+
+        public async Task<List<ConfigEntity>> GetAllAsync()
+        {
+            return (await _collection.FindAsync(FilterDefinition<ConfigEntity>.Empty)).ToList();
         }
     }
 }

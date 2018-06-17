@@ -40,8 +40,9 @@ namespace ConfigurationProvider
                 throw new InvalidCastException($"Configuration type {configuration.Type} is different than expected type {conversionType.Name}");
             }
 
+            var convertedValue = (T)Convert.ChangeType(configuration.Value, conversionType);
             _cacheProvider.Set(key, configuration);
-            return (T)Convert.ChangeType(configuration.Value, conversionType);
+            return convertedValue;
         }
     }
 }

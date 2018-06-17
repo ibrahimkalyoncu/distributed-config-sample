@@ -15,16 +15,22 @@ namespace Backoffice.Controllers
             _configurationDatasource = configurationDatasource;
         }
 
-        public async Task<IActionResult> Add([FromBody] ConfigModel config)
+        public async Task<IActionResult> Save([FromBody] ConfigModel config)
         {
-            var isSaved = await _configurationDatasource.UpsertAsync(new Config
+            var isSaved = false;
+
+            if (ModelState.IsValid)
             {
-                Id = config.Id,
-                Name = config.Name,
-                Value = config.Value,
-                IsActive = config.IsActive,
-                Type = config.Type
-            });
+                isSaved = await _configurationDatasource.UpsertAsync(new Config
+                {
+                    Id = config.Id,
+                    Name = config.Name,
+                    Value = config.Value,
+                    ApplicationName = config.ApplicationName,
+                    IsActive = config.IsActive,
+                    Type = config.Type
+                });
+            }
 
             return Json(new { Result = isSaved });
         }

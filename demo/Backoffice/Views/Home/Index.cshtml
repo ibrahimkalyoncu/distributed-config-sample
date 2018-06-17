@@ -20,7 +20,8 @@
                     name: '',
                     value: '',
                     type: '@typeof(string).Name',
-                    isActive: false
+                    isActive: false,
+                    applicationName: ''
                 },
                 configs: @Html.Raw(Json.Serialize(Model.ConfigList)),
                 filteredConfigs: @Html.Raw(Json.Serialize(Model.ConfigList))
@@ -28,7 +29,7 @@
             methods: {
                 saveConfig: function () {
                     if (app.saveModel && app.saveModel.name && app.saveModel.value && app.saveModel.type) {
-                        axios.post('/configuration/add', app.saveModel).then(function (response) {
+                        axios.post('/configuration/save', app.saveModel).then(function (response) {
                             if (response.data.result === true) {
                                 app.refresh();
                                 app.resetSaveModel();
@@ -51,7 +52,8 @@
                         name: '',
                         value: '',
                         type: '@typeof(string).Name',
-                        isActive: false
+                        isActive: false,
+                        applicationName: ''
                     };
                 },
                 filter: function() {
@@ -77,15 +79,17 @@
                 </th>
             </tr>
             <tr>
+                <th>Application Name</th>
                 <th>Name</th>
                 <th>Value</th>
                 <th>Type</th>
-                <th>IsActive</th>
+                <th>Is Active</th>
                 <th width="100px"></th>
             </tr>
         </thead>
         <tbody>
             <tr>
+                <td><input class="form-control" type="text" v-model="saveModel.applicationName" /></td>
                 <td><input class="form-control" type="text" v-model="saveModel.name" /></td>
                 <td><input class="form-control" type="text" v-model="saveModel.value" /></td>
                 <td>
@@ -105,6 +109,7 @@
                 </td>
             </tr>
             <tr v-for="config in filteredConfigs" v-if="!saveModel.id">
+                <td>{{config.applicationName}}</td>
                 <td>{{config.name}}</td>
                 <td>{{config.value}}</td>
                 <td>{{config.type}}</td>

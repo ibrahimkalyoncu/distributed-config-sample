@@ -30,7 +30,7 @@ namespace ConfigurationProvider
 
         public async Task<List<Config>> GetAllAsync()
         {
-            return (await _repository.FindAsync(c => c.ApplicationName == _settings.ApplicationName)).Select(Mapper.Map).ToList();
+            return (await _repository.GetAllAsync()).Select(Mapper.Map).ToList();
         }
 
         public async Task<bool> DeleteAsync(string id)
@@ -63,13 +63,6 @@ namespace ConfigurationProvider
         public async Task<bool> UpsertAsync(Config configuration)
         {
             /*
-             * override application name
-             * a much better and safe solution is using an other model for this operation.
-             * because of limited time I choosed this way
-             */
-            configuration.ApplicationName = _settings.ApplicationName;
-
-            /*
              * Check if allready exist 
              */
             var config = string.IsNullOrEmpty(configuration.Id) 
@@ -85,7 +78,7 @@ namespace ConfigurationProvider
             {
                 Name = configuration.Name,
                 Value = configuration.Value,
-                ApplicationName = _settings.ApplicationName,
+                ApplicationName = configuration.ApplicationName,
                 Type = configuration.Type,
                 IsActive = configuration.IsActive
             };

@@ -58,6 +58,18 @@ namespace ConfigurationProvider.Test
         }
 
         [TestMethod]
+        public async Task Should_Throw_Format_Exception_When_Casting_Invalid_Input()
+        {
+            //Arrange
+            var configuration = TestHelper.CreateConfiguration("TestName", "Five", _settings.ApplicationName, true, typeof(int).Name);
+            _dataSourceMock.Setup(x => x.GetAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(configuration);
+
+            //Act
+            //Assert
+            await Assert.ThrowsExceptionAsync<FormatException>(async () => await _provider.GetAsync<int>(configuration.Name));
+        }
+
+        [TestMethod]
         public async Task Should_Throw_Exception_When_Type_Mismatch()
         {
             //Arrange
