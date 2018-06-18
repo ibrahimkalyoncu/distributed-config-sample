@@ -53,4 +53,10 @@ Use **docker-compose** to setup all you need to test the demo applications.
 
 Then you can explore **storefront** on http://127.0.0.1:57001 and **backoffice** on http://127.0.0.1:57002 . Storefront's application name is **SERVICE-A** and stored on **appsettings.json**. You will find three configurations with default values named **FooCount**, **FooEnabled** and **FooString** listed on storefront. Once you create those three configurations on backoffice, you will see the right values on storefront. If you create any of these three config with a different application name than SERVICE-A, storefront will not display the values.
 
-After you created the three config, you can stop **mongo** container on docker cli and storefront will still be working from **cache**. 
+After you created the three config, you can stop **mongo** container on docker cli and storefront will still be working from **cache**.
+
+    docker container stop mongo
+
+While mongo is unreachable storefront will keep working but backoffice will crash as expected. Please be sure of you created the three config mentioned and refresh storefront to cache those values before stopping mongo container.
+
+Cheers!
