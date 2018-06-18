@@ -18,9 +18,9 @@ namespace ConfigurationProvider
             _dataSource = dataSource;
             _cacheProvider = cacheProvider;
 
-            _dataSource.OnConfigurationChanged += id =>
+            _dataSource.OnConfigurationChanged += key =>
             {
-                _cacheProvider.Invalidate(id);
+                _cacheProvider.Invalidate(key);
             };
         }
 
@@ -41,7 +41,7 @@ namespace ConfigurationProvider
             }
 
             var convertedValue = (T)Convert.ChangeType(configuration.Value, conversionType);
-            _cacheProvider.Set(configuration.Id, configuration);
+            _cacheProvider.Set(key, configuration);
             return convertedValue;
         }
     }

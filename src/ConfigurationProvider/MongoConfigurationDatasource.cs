@@ -35,6 +35,13 @@ namespace ConfigurationProvider
 
         public async Task<bool> DeleteAsync(string id)
         {
+            var configToDelete = await _repository.GetAsync(id);
+
+            if (configToDelete == null)
+            {
+                return false;
+            }
+
             var isDeleted = await _repository.DeleteAsync(ObjectId.Parse(id));
 
             if (isDeleted)
@@ -46,7 +53,7 @@ namespace ConfigurationProvider
                 }
 
                 //Publish the change
-                await _subscriber.PublishAsync(Constants.RedisPubSubChannel, id);
+                await _subscriber.PublishAsync(Constants.RedisPubSubChannel, configToDelete.Name);
             }
 
             return isDeleted;
@@ -113,7 +120,7 @@ namespace ConfigurationProvider
                 }
 
                 //Publish the change
-                await _subscriber.PublishAsync(Constants.RedisPubSubChannel, mappedConfig._id.ToString());
+                await _subscriber.PublishAsync(Constants.RedisPubSubChannel, mappedConfig.Name);
             }
 
             return isUpdated;

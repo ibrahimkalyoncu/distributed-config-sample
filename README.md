@@ -11,8 +11,7 @@ A sample .net core repository demonstrates dynamic distributed cache implementat
 	    public void ConfigureServices(IServiceCollection services)
 		{
 		    services.AddMvc();
-			...
-			
+
 		    //Register services for dependency injection
 		    services.AddConfiguration();
 		}
@@ -28,10 +27,11 @@ A sample .net core repository demonstrates dynamic distributed cache implementat
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
-			...
+
+			//Configure application to subscribe/publish to cache invalidation pubsub channel
             app.UseConfiguration();
         }
-3. Inject into any controller and use
+3. Inject and use
 
 		public  HomeController(IConfigurationProvider configurationProvider)
 		{
