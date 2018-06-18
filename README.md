@@ -59,4 +59,6 @@ After you created the three config, you can stop **mongo** container on docker c
 
 While mongo is unreachable storefront will keep working but backoffice will crash as expected. Please be sure of you created the three config mentioned and refresh storefront to cache those values before stopping mongo container.
 
+Also there are mongo and redis gui applications on docker compose file. You can use Redis Commander on http://127.0.0.1:57003/ Mongo Express on http://127.0.0.1:57004/ . If you want to be sure of caching works; you can check query stats under server status tab on Mongo Express.
+
 Cheers!
